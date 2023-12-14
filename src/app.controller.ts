@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res, Query } from '@nestjs/common';
 import { MessageService } from './services/message.service';
 import { Response } from 'express';
 import { RoomService } from './services/room.service';
@@ -26,11 +26,8 @@ export class AppController {
   }
 
   @Get('users/:id/rooms')
-  async getRooms(
-    @Param('id') userId: number,
-    @Res() res: Response,
-  ): Promise<any> {
-    const rooms = await this.roomService.getRooms(userId);
+  async getRooms(@Param('id') userId: number, @Query('name') roomName: string, @Res() res: Response): Promise<any> {
+    const rooms = await this.roomService.getRooms(userId, roomName)
     res.status(200).json({
       status: 200,
       message: 'MSG_202',

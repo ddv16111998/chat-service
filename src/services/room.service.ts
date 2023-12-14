@@ -10,12 +10,18 @@ export class RoomService {
     @InjectModel(Room.name) private readonly roomModel: Model<RoomDocument>,
   ) {}
 
-  async getRooms(userId: number): Promise<any> {
+  async getRooms(userId: number, roomName?: string): Promise<any> {
+    const matchCondition: any = {
+      user_ids: { $in: [Number(userId)] },
+    };
+    if (roomName) {
+      matchCondition.name = {
+        $regex: new RegExp(roomName, 'i'),
+      };
+    }
     return this.roomModel.aggregate([
       {
-        $match: {
-          user_ids: { $in: [Number(userId)] },
-        },
+        $match: matchCondition,
       },
       {
         $lookup: {
@@ -26,11 +32,14 @@ export class RoomService {
         },
       },
       {
-        $unwind: '$messages',
+        $unwind: {
+          path: '$messages',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $sort: {
-          'messages.created_at': -1,
+          'messages.createdAt': -1,
         },
       },
       {
@@ -38,10 +47,29 @@ export class RoomService {
           _id: '$_id',
           name: { $first: '$name' },
           thumbnail: { $first: '$thumbnail' },
-          created_by: { $first: '$created_by' },
-          user_ids: { $first: '$user_ids' },
+          latest_message: { $first: '$messages.message' },
           latest_message_at: { $first: '$latest_message_at' },
-          latest_message: { $last: '$messages.message' },
+          unread_count: {
+            $sum: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $isArray: '$messages.unread_user_ids' },
+                    {
+                      $in: [Number(userId), '$messages.unread_user_ids'],
+                    },
+                  ],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          latest_message_at: -1,
         },
       },
       {
@@ -49,19 +77,12 @@ export class RoomService {
           _id: 1,
           name: 1,
           thumbnail: 1,
-          created_by: 1,
-          user_ids: 1,
+          latest_message: 1,
           latest_message_at: 1,
-          'latest_message._id': 1,
-          'latest_message.room_uuid': 1,
-          'latest_message.message': 1,
-          'latest_message.type': 1,
-          'latest_message.created_by': 1,
-          'latest_message.unread_user_ids': 1,
-          __v: 1,
+          unread_count: 1
         },
       },
-    ]);
+    ])
   }
 
   async getDataCreate(data: RoomType): Promise<RoomType> {

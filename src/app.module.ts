@@ -1,22 +1,29 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { MessageSchema } from './schemas/message.schema';
 import { AppGateway } from './gateway/app.gateway';
-import { RoomSchema } from './schemas/room.schema';
-import { MessageService } from './services/message.service';
-import { RoomService } from './services/room.service';
+import { MessageService } from './services/mongo/message.service';
+import { RoomService } from './services/mongo/room.service';
+import {MongodbModule} from "./database_connections/mongodb.module";
+import {MysqlModule} from "./database_connections/mysql.module";
+import {MongooseModule} from "@nestjs/mongoose";
+import {MessageSchema} from "./entities/mongodb/message.schema";
+import {RoomSchema} from "./entities/mongodb/room.schema";
+import {UserService} from "./services/mysql/user.service";
+import {TypeOrmModule} from "@nestjs/typeorm";
+import {User} from "./entities/mysql/user.entity";
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/chats'),
+    MongodbModule,
     MongooseModule.forFeature([
       { name: 'Message', schema: MessageSchema },
       { name: 'Room', schema: RoomSchema },
     ]),
+    MysqlModule,
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AppController],
-  providers: [AppService, MessageService, RoomService, AppGateway],
+  providers: [AppService, MessageService, RoomService, AppGateway, UserService],
 })
 export class AppModule {}

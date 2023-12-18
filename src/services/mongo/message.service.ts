@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Message, MessageDocument } from '../schemas/message.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Room } from '../schemas/room.schema';
-import { MessageType } from '../types/message.type';
+import { MessageType } from '../../types/message.type';
+import {Message, MessageDocument} from "../../entities/mongodb/message.schema";
+import {Room} from "../../entities/mongodb/room.schema";
 
 @Injectable()
 export class MessageService {

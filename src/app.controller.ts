@@ -1,13 +1,15 @@
 import { Controller, Get, Param, Res, Query } from '@nestjs/common';
-import { MessageService } from './services/message.service';
+import { MessageService } from './services/mongo/message.service';
 import { Response } from 'express';
-import { RoomService } from './services/room.service';
+import { RoomService } from './services/mongo/room.service';
+import {UserService} from "./services/mysql/user.service";
 
 @Controller()
 export class AppController {
   constructor(
     private readonly messageService: MessageService,
     private readonly roomService: RoomService,
+    private readonly userService: UserService,
   ) {}
 
   @Get('users/:id/unread-messages')
@@ -33,6 +35,18 @@ export class AppController {
       message: 'MSG_202',
       data: {
         rooms,
+      },
+    });
+  }
+
+  @Get('users')
+  async getUsers(@Res() res: Response) {
+    const users = await this.userService.findAll()
+    res.status(200).json({
+      status: 200,
+      message: 'MSG_202',
+      data: {
+        users,
       },
     });
   }

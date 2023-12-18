@@ -7,6 +7,7 @@ export type RoomType = {
 };
 
 export type OpenRoomRequest = {
+  name?: string,
   user_ids: number[];
   created_by?: number;
 };

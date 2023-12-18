@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Room, RoomDocument } from '../schemas/room.schema';
 import { Model } from 'mongoose';
-import { RoomType } from '../types/room.type';
+import { RoomType } from '../../types/room.type';
+import {Room, RoomDocument} from "../../entities/mongodb/room.schema";
 
 @Injectable()
 export class RoomService {

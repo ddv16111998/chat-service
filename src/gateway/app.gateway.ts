@@ -7,15 +7,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from '../services/room.service';
-import { Room } from '../schemas/room.schema';
-import { MessageService } from '../services/message.service';
+import { RoomService } from '../services/mongo/room.service';
+import { MessageService } from '../services/mongo/message.service';
 import {
   OpenRoomRequest,
   OpenRoomResponse,
   RoomType,
 } from '../types/room.type';
 import { MessageType } from '../types/message.type';
+import {Room} from "../entities/mongodb/room.schema";
 
 @WebSocketGateway({
   cors: {
@@ -74,7 +74,7 @@ export class AppGateway
 
   async getRequestCreateRoom(payload: OpenRoomRequest) {
     const request: RoomType = {
-      name: 'Room' + payload.user_ids.join(''),
+      name: payload.name,
       thumbnail: '',
       created_by: payload.created_by,
       user_ids: payload.user_ids,
